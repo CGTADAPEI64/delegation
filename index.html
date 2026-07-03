@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mes heures de délégation</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1F3864">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Délégation">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+:root{
+  --cse:#2E5AAC; --cse-bg:#D9E1F2;
+  --cssct:#C55A11; --cssct-bg:#FCE4D6;
+  --ds:#548235; --ds-bg:#E2EFDA;
+  --rp:#7030A0; --rp-bg:#E6E0EF;
+  --head:#1F3864; --ink:#1a1a1a; --muted:#666; --line:#e2e2e2; --bg:#f4f6fb;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+     background:var(--bg);color:var(--ink);-webkit-text-size-adjust:100%}
+header{background:var(--head);color:#fff;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;
+       position:sticky;top:0;z-index:10}
+header h1{font-size:17px;margin:0;font-weight:600}
+header .sync{font-size:12px;opacity:.85;margin-top:2px}
+main{padding:14px 14px 90px;max-width:820px;margin:0 auto}
+.view{display:none} .view.active{display:block}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;
+      box-shadow:0 1px 2px rgba(0,0,0,.04)}
+label{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+input,select,textarea{width:100%;padding:11px;border:1px solid #cfd4dc;border-radius:10px;font-size:16px;background:#fff}
+textarea{min-height:70px;resize:vertical}
+.row{display:flex;gap:10px}.row>*{flex:1}
+button{font-size:15px;border:none;border-radius:10px;padding:12px 14px;font-weight:600;cursor:pointer}
+.btn-primary{background:var(--head);color:#fff;width:100%}
+.btn-ghost{background:#eef1f7;color:var(--head)}
+.btn-danger{background:#fde8e8;color:#b42318}
+.btn-mini{padding:7px 10px;font-size:13px;border-radius:8px}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:700;color:#fff}
+.t-CSE{background:var(--cse)}.t-CSSCT{background:var(--cssct)}.t-DS{background:var(--ds)}.t-RP{background:var(--rp)}
+.bg-CSE{background:var(--cse-bg)}.bg-CSSCT{background:var(--cssct-bg)}.bg-DS{background:var(--ds-bg)}.bg-RP{background:var(--rp-bg)}
+.counters{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.counter{border-radius:12px;padding:12px;border:1px solid var(--line)}
+.counter h3{margin:0 0 6px;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+.counter .big{font-size:22px;font-weight:800}
+.counter .sub{font-size:12px;color:var(--muted);margin-top:2px}
+.alert{color:#b42318;font-size:12px;font-weight:700;margin-top:6px}
+.ok{color:var(--ds);font-size:12px;font-weight:700;margin-top:6px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{border:1px solid var(--line);padding:6px;text-align:left;vertical-align:top}
+th{background:var(--head);color:#fff;font-weight:600;font-size:12px}
+.wknd{background:#f0f0f0;color:#999}
+.tranche{white-space:pre-line}
+.entry{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
+.entry:last-child{border-bottom:none}
+.entry .meta{font-size:12px;color:var(--muted)}
+.emailbox{white-space:pre-wrap;background:#fbfbfd;border:1px dashed #c9c9d6;border-radius:10px;padding:12px;font-size:13px;line-height:1.45}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);
+    display:flex;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;color:var(--muted);font-weight:600;padding:10px 4px;font-size:12px;border-radius:0}
+nav button.active{color:var(--head)}
+nav button span{display:block;font-size:20px;line-height:1.1}
+.small{font-size:12px;color:var(--muted)}
+h2.sec{font-size:15px;margin:4px 0 10px}
+.hidden{display:none!important}
+.tot{background:#eef1f7;font-weight:700}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.printOnly{display:none}
+@media print{
+  header,nav{display:none!important}
+  main{padding:0;max-width:none}
+  #v-saisie,#v-reglages,#countersCard,#emailCard{display:none!important}
+  #v-mois{display:block!important}
+  .no-print{display:none!important}
+  .card{border:none;box-shadow:none;margin:0;padding:0}
+  .printOnly{display:block!important}
+  #printHeader{margin-bottom:12px}
+  #printHeader h1{font-size:16px;margin:0 0 2px}
+  #printHeader .ph{font-size:12px;color:#333}
+  table{font-size:10.5px}
+  th{background:#1F3864!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .bg-CSE,.bg-CSSCT,.bg-DS,.bg-RP,.tot,.wknd{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  @page{margin:1.4cm}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Mes heures de délégation</h1>
+  <div class="sync" id="syncState">Stockage local sur cet appareil</div>
+</header>
+
+<main>
+  <!-- ================= SAISIE ================= -->
+  <section id="v-saisie" class="view active">
+    <div class="card">
+      <h2 class="sec" id="formTitle">Ajouter un créneau</h2>
+      <label>Date</label>
+      <input type="date" id="f-date">
+      <label>Mouvement</label>
+      <select id="f-mouv">
+        <option value="Prise">Prise (heures consommées)</option>
+        <option value="Donnée">Donnée (je cède des heures)</option>
+        <option value="Reçue">Reçue (un collègue me donne des heures)</option>
+      </select>
+      <div id="timeBlock">
+        <div class="row">
+          <div><label>Heure début</label><input type="time" id="f-start"></div>
+          <div><label>Heure fin</label><input type="time" id="f-end"></div>
+        </div>
+        <div class="small" id="durInfo"></div>
+      </div>
+      <div id="manualBlock" class="hidden">
+        <label>Nombre d'heures</label>
+        <input type="number" id="f-hours" step="0.5" min="0" inputmode="decimal">
+        <label>Avec qui (nom)</label>
+        <input type="text" id="f-who" placeholder="Bénéficiaire / donateur">
+      </div>
+      <label>Mandat</label>
+      <select id="f-type">
+        <option value="CSE">CSE</option><option value="CSSCT">CSSCT</option>
+        <option value="DS">DS</option><option value="RP">RP</option>
+      </select>
+      <label>Commentaire (facultatif)</label>
+      <input type="text" id="f-comment">
+      <div style="height:12px"></div>
+      <button class="btn-primary" id="saveEntry">Enregistrer</button>
+      <button class="btn-ghost hidden" id="cancelEdit" style="width:100%;margin-top:8px">Annuler la modification</button>
+      <p class="small" id="cssctWarn" style="color:#b42318"></p>
+    </div>
+
+    <div class="card">
+      <div class="row" style="align-items:center">
+        <h2 class="sec" style="margin:0">Créneaux</h2>
+        <select id="listMonth" style="max-width:150px"></select>
+      </div>
+      <div id="entriesList"></div>
+    </div>
+  </section>
+
+  <!-- ================= MOIS ================= -->
+  <section id="v-mois" class="view">
+    <div class="card no-print" id="countersCard">
+      <div class="row" style="align-items:center">
+        <h2 class="sec" style="margin:0">Mois</h2>
+        <select id="recapMonth" style="max-width:150px"></select>
+      </div>
+      <div class="counters" id="counters"></div>
+    </div>
+
+    <div class="card" id="recapCard">
+      <div class="printOnly" id="printHeader"></div>
+      <div class="row no-print" style="align-items:center;justify-content:space-between">
+        <h2 class="sec" style="margin:0">Récapitulatif employeur — <span id="recapTitle"></span></h2>
+        <button class="btn-ghost btn-mini" id="printBtn">🖨️ PDF</button>
+      </div>
+      <div id="recapTable"></div>
+    </div>
+
+    <div class="card no-print" id="emailCard">
+      <h2 class="sec">Texte d'e-mail (prêt à envoyer)</h2>
+      <div class="emailbox" id="emailBox"></div>
+      <div style="height:10px"></div>
+      <button class="btn-ghost" id="copyEmail" style="width:100%">Copier le texte</button>
+    </div>
+  </section>
+
+  <!-- ================= RÉGLAGES ================= -->
+  <section id="v-reglages" class="view">
+    <div class="card">
+      <h2 class="sec">Réglages</h2>
+      <label>Nom / Prénom (pour l'e-mail)</label>
+      <input type="text" id="s-name">
+      <label>Année civile</label>
+      <input type="number" id="s-year" step="1">
+      <h2 class="sec" style="margin-top:14px">Quotas mensuels (heures)</h2>
+      <div class="row">
+        <div><label>CSE</label><input type="number" id="q-CSE"></div>
+        <div><label>CSSCT</label><input type="number" id="q-CSSCT"></div>
+      </div>
+      <div class="row">
+        <div><label>DS</label><input type="number" id="q-DS"></div>
+        <div><label>RP</label><input type="number" id="q-RP"></div>
+      </div>
+      <div style="height:12px"></div>
+      <button class="btn-primary" id="saveSettings">Enregistrer les réglages</button>
+    </div>
+
+    <div class="card">
+      <h2 class="sec">Synchronisation iPhone ↔ ordinateur</h2>
+      <p class="small">Collez ici la configuration Firebase (voir le guide). Tant qu'elle est vide, l'application fonctionne en local sur cet appareil. Une fois remplie et connectée, vos données se synchronisent entre tous vos appareils.</p>
+      <label>Configuration Firebase (JSON)</label>
+      <textarea id="s-fb" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}'></textarea>
+      <div style="height:10px"></div>
+      <button class="btn-primary" id="saveFb">Activer la synchronisation</button>
+      <div id="fbControls" class="hidden" style="margin-top:10px">
+        <label>Code de synchronisation — le <b>même</b> sur vos deux appareils</label>
+        <div class="row">
+          <input type="text" id="s-code" placeholder="ex : DEL-7X4K2">
+          <button class="btn-ghost" id="genCode" style="max-width:120px">Générer</button>
+        </div>
+        <button class="btn-primary" id="saveCode" style="width:100%;margin-top:8px">Relier avec ce code</button>
+        <p class="small">Gardez ce code privé : c'est lui qui protège l'accès à vos données.</p>
+      </div>
+      <p class="small" id="fbState"></p>
+    </div>
+
+    <div class="card">
+      <h2 class="sec">Données</h2>
+      <button class="btn-ghost" id="exportData" style="width:100%">Exporter mes données (sauvegarde)</button>
+      <label style="margin-top:10px">Importer une sauvegarde (.json)</label>
+      <input type="file" id="importData" accept="application/json">
+    </div>
+    <p class="small" style="text-align:center">Cadre légal : art. L.2315-7, R.2315-5 et R.2315-6 du Code du travail (report ≤ 1,5 × crédit/mois, information employeur ≥ 8 jours).</p>
+  </section>
+</main>
+
+<nav>
+  <button data-v="saisie" class="active"><span>✍️</span>Saisie</button>
+  <button data-v="mois"><span>📅</span>Mois</button>
+  <button data-v="reglages"><span>⚙️</span>Réglages</button>
+</nav>
+
+<script type="module">
+/* ===================== LOGIQUE MÉTIER ===================== */
+const TYPES=["CSE","CSSCT","DS","RP"];
+const MONTHS=["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+const DOW=["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"];
+const hm=t=>{if(!t)return null;const[h,m]=t.split(":").map(Number);return h+(m||0)/60;};
+const fmtH=x=>(Math.round(x*100)/100).toString().replace(".",",");
+function entryHours(e){
+  if(e.mouv==="Prise"){const a=hm(e.start),b=hm(e.end);return(a!=null&&b!=null&&b>a)?+(b-a).toFixed(2):0;}
+  return +(e.hours||0);
+}
+const monthNum=d=>d?+d.slice(5,7):null, dayNum=d=>d?+d.slice(8,10):null;
+function sumBy(es,{month,type,mouv}){let s=0;for(const e of es){if(month&&monthNum(e.date)!==month)continue;if(type&&e.type!==type)continue;if(mouv&&e.mouv!==mouv)continue;s+=entryHours(e);}return +s.toFixed(2);}
+function mandateMonth(es,q,type,month,rep){
+  const credit=q[type];
+  const recues=sumBy(es,{month,type,mouv:"Reçue"}), donnees=sumBy(es,{month,type,mouv:"Donnée"}), conso=sumBy(es,{month,type,mouv:"Prise"});
+  if(type==="CSE"){
+    const dispo=+(credit+rep+recues-donnees).toFixed(2), plafond=+(credit*1.5).toFixed(2), solde=+(dispo-conso).toFixed(2);
+    let alerte="OK"; if(conso>plafond)alerte=`⚠ Plafond dépassé (max ${fmtH(plafond)} h)`; else if(solde<0)alerte=`⚠ Solde négatif (${fmtH(solde)} h)`;
+    return{credit,rep,recues,donnees,dispo,plafond,conso,solde,reportSortant:Math.max(0,solde),alerte};
+  }
+  if(type==="CSSCT"){
+    const solde=+(credit-conso).toFixed(2); let alerte="OK";
+    if(donnees+recues>0)alerte="⚠ CSSCT non cessible"; else if(solde<0)alerte=`⚠ Solde négatif (${fmtH(solde)} h)`;
+    return{credit,rep:0,recues,donnees,dispo:credit,conso,solde,reportSortant:0,alerte};
+  }
+  const dispo=+(credit+recues-donnees).toFixed(2), solde=+(dispo-conso).toFixed(2);
+  return{credit,rep:0,recues,donnees,dispo,conso,solde,reportSortant:0,alerte:solde<0?`⚠ Solde négatif (${fmtH(solde)} h)`:"OK"};
+}
+function computeYear(es,q){const res={};TYPES.forEach(t=>res[t]=[]);let cse=0;for(let m=1;m<=12;m++){for(const t of TYPES){const rep=t==="CSE"?cse:0;const r=mandateMonth(es,q,t,m,rep);res[t][m-1]=r;if(t==="CSE")cse=r.reportSortant;}}return res;}
+function monthlyRecap(es,month){
+  const days={};
+  for(const e of es){if(e.mouv!=="Prise"||monthNum(e.date)!==month)continue;const a=hm(e.start);if(a==null)continue;
+    const d=dayNum(e.date),half=a<13?"matin":"aprem";(days[d]=days[d]||{matin:[],aprem:[],total:0});
+    days[d][half].push({start:e.start,end:e.end,type:e.type,hours:entryHours(e)});days[d].total+=entryHours(e);}
+  Object.values(days).forEach(o=>{o.matin.sort((x,y)=>hm(x.start)-hm(y.start));o.aprem.sort((x,y)=>hm(x.start)-hm(y.start));o.total=+o.total.toFixed(2);});
+  return days;
+}
+const monthlyMutual=(es,month)=>es.filter(e=>(e.mouv==="Donnée"||e.mouv==="Reçue")&&monthNum(e.date)===month).sort((a,b)=>a.date.localeCompare(b.date));
+
+/* ===================== ÉTAT & STOCKAGE ===================== */
+const DEFAULT={settings:{name:"",year:new Date().getFullYear(),quotas:{CSE:24,CSSCT:14,DS:24,RP:8}},entries:[]};
+let state=load();
+function load(){try{const s=JSON.parse(localStorage.getItem("delegation"));if(s&&s.settings)return s;}catch(e){}return structuredClone(DEFAULT);}
+function persist(){localStorage.setItem("delegation",JSON.stringify(state));cloudPush();}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+
+/* ===================== NAVIGATION ===================== */
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  document.getElementById("v-"+b.dataset.v).classList.add("active");
+  if(b.dataset.v==="mois")renderMois();
+  if(b.dataset.v==="saisie")renderEntries();
+});
+
+/* ===================== SAISIE ===================== */
+const $=id=>document.getElementById(id);
+let editingId=null;
+function toggleMouv(){
+  const prise=$("f-mouv").value==="Prise";
+  $("timeBlock").classList.toggle("hidden",!prise);
+  $("manualBlock").classList.toggle("hidden",prise);
+}
+$("f-mouv").onchange=toggleMouv;
+function updateDur(){
+  const a=hm($("f-start").value),b=hm($("f-end").value);
+  $("durInfo").textContent=(a!=null&&b!=null&&b>a)?`Durée : ${fmtH(b-a)} h`:"";
+}
+$("f-start").oninput=updateDur; $("f-end").oninput=updateDur;
+$("f-type").onchange=()=>{
+  $("cssctWarn").textContent=($("f-type").value==="CSSCT"&&$("f-mouv").value!=="Prise")
+    ? "Les heures CSSCT ne sont ni cessibles ni reçues." : "";
+};
+$("saveEntry").onclick=()=>{
+  const date=$("f-date").value; if(!date){alert("Indiquez une date.");return;}
+  const mouv=$("f-mouv").value,type=$("f-type").value;
+  const e={id:editingId||uid(),date,mouv,type,comment:$("f-comment").value.trim()};
+  if(mouv==="Prise"){
+    e.start=$("f-start").value;e.end=$("f-end").value;
+    if(!e.start||!e.end){alert("Indiquez l'heure de début et de fin.");return;}
+    if(hm(e.end)<=hm(e.start)){alert("L'heure de fin doit être après le début.");return;}
+  }else{
+    e.hours=parseFloat($("f-hours").value||"0");e.who=$("f-who").value.trim();
+    if(!e.hours){alert("Indiquez le nombre d'heures.");return;}
+    if(type==="CSSCT"){alert("Les heures CSSCT ne peuvent pas être données ni reçues.");return;}
+  }
+  if(editingId){const i=state.entries.findIndex(x=>x.id===editingId);state.entries[i]=e;}
+  else state.entries.push(e);
+  persist();resetForm();renderEntries();
+  flash("Enregistré ✓");
+};
+$("cancelEdit").onclick=resetForm;
+function resetForm(){
+  editingId=null;$("formTitle").textContent="Ajouter un créneau";$("cancelEdit").classList.add("hidden");
+  ["f-start","f-end","f-hours","f-who","f-comment"].forEach(id=>$(id).value="");
+  $("durInfo").textContent="";$("cssctWarn").textContent="";
+}
+function editEntry(id){
+  const e=state.entries.find(x=>x.id===id);if(!e)return;editingId=id;
+  $("f-date").value=e.date;$("f-mouv").value=e.mouv;$("f-type").value=e.type;$("f-comment").value=e.comment||"";
+  $("f-start").value=e.start||"";$("f-end").value=e.end||"";$("f-hours").value=e.hours||"";$("f-who").value=e.who||"";
+  toggleMouv();updateDur();$("formTitle").textContent="Modifier le créneau";$("cancelEdit").classList.remove("hidden");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function delEntry(id){if(confirm("Supprimer ce créneau ?")){state.entries=state.entries.filter(x=>x.id!==id);persist();renderEntries();renderMois();}}
+function renderEntries(){
+  const sel=$("listMonth");const m=+sel.value|| (new Date().getMonth()+1);
+  const list=state.entries.filter(e=>monthNum(e.date)===m).sort((a,b)=>(a.date+ (a.start||"")).localeCompare(b.date+(b.start||"")));
+  $("entriesList").innerHTML=list.length?list.map(e=>{
+    const h=fmtH(entryHours(e));
+    const when=e.mouv==="Prise"?`${e.start}–${e.end} · ${h} h`:`${e.mouv} · ${h} h${e.who?" · "+e.who:""}`;
+    return `<div class="entry"><div>
+      <div><span class="pill t-${e.type}">${e.type}</span> <b>${frDate(e.date)}</b></div>
+      <div class="meta">${when}${e.comment?" — "+esc(e.comment):""}</div></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn-ghost btn-mini" data-edit="${e.id}">✏️</button>
+        <button class="btn-danger btn-mini" data-del="${e.id}">🗑️</button>
+      </div></div>`;
+  }).join(""):`<p class="small">Aucun créneau ce mois-ci.</p>`;
+  $("entriesList").querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editEntry(b.dataset.edit));
+  $("entriesList").querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>delEntry(b.dataset.del));
+}
+
+/* ===================== VUE MOIS ===================== */
+function renderMois(){
+  const m=+$("recapMonth").value||(new Date().getMonth()+1);
+  const y=computeYear(state.entries,state.settings.quotas);
+  $("recapTitle").textContent=`${MONTHS[m-1]} ${state.settings.year}`;
+  $("printHeader").innerHTML=`<h1>Récapitulatif des heures de délégation</h1>
+    <div class="ph">${state.settings.name?esc(state.settings.name)+" — ":""}${MONTHS[m-1]} ${state.settings.year}</div>`;
+  // compteurs
+  const c=m=>y, r={};TYPES.forEach(t=>r[t]=y[t][m-1]);
+  $("counters").innerHTML=TYPES.map(t=>{
+    const o=r[t];
+    const extra=t==="CSE"?`<div class="sub">Report entrant ${fmtH(o.rep)} h · sortant ${fmtH(o.reportSortant)} h · plafond ${fmtH(o.plafond)} h</div>`:"";
+    return `<div class="counter bg-${t}">
+      <h3><span class="pill t-${t}">${t}</span><span class="small">${fmtH(o.dispo)} h dispo</span></h3>
+      <div class="big">${fmtH(o.solde)} h</div><div class="sub">solde (consommé ${fmtH(o.conso)} h)</div>
+      ${extra}<div class="${o.alerte==="OK"?"ok":"alert"}">${o.alerte}</div></div>`;
+  }).join("");
+  // recap tableau
+  const days=monthlyRecap(state.entries,m);
+  const dl=Object.keys(days).map(Number).sort((a,b)=>a-b);
+  let rows="";
+  for(const d of dl){
+    const dt=new Date(state.settings.year,m-1,d);const we=dt.getDay()===0||dt.getDay()===6;
+    const o=days[d];
+    const cell=arr=>arr&&arr.length?arr.map(x=>`${x.start}–${x.end}  ${x.type} (${fmtH(x.hours)} h)`).join("\n"):"";
+    const bgMat=o&&o.matin[0]?"bg-"+o.matin[0].type:"";
+    const bgApr=o&&o.aprem[0]?"bg-"+o.aprem[0].type:"";
+    rows+=`<tr class="${we?"wknd":""}"><td>${DOW[(dt.getDay()+6)%7]} ${String(d).padStart(2,"0")}</td>
+      <td class="tranche ${bgMat}">${cell(o&&o.matin)}</td>
+      <td class="tranche ${bgApr}">${cell(o&&o.aprem)}</td>
+      <td>${o?fmtH(o.total):""}</td></tr>`;
+  }
+  if(!dl.length)rows=`<tr><td colspan="4" style="text-align:center;color:#888">Aucune heure prise ce mois-ci</td></tr>`;
+  const totMonth=sumBy(state.entries,{month:m,mouv:"Prise"});
+  const perType=TYPES.map(t=>`${t} ${fmtH(sumBy(state.entries,{month:m,type:t,mouv:"Prise"}))} h`).join(" · ");
+  const mut=monthlyMutual(state.entries,m);
+  const mutRows=mut.length?`<h2 class="sec" style="margin-top:12px">Heures mutualisées</h2>
+    <table><tr><th>Date</th><th>Mandat</th><th>Mouvement</th><th>Heures</th><th>Avec qui</th></tr>
+    ${mut.map(e=>`<tr><td>${frDate(e.date)}</td><td><span class="pill t-${e.type}">${e.type}</span></td><td>${e.mouv}</td><td>${fmtH(entryHours(e))} h</td><td>${esc(e.who||"")}</td></tr>`).join("")}</table>`:"";
+  $("recapTable").innerHTML=`<table>
+    <tr><th>Jour</th><th>Matin (8h–13h)</th><th>Après-midi (13h–19h)</th><th>Total</th></tr>
+    ${rows}<tr class="tot"><td colspan="3">TOTAL DU MOIS</td><td>${fmtH(totMonth)} h</td></tr></table>
+    <p class="small">dont : ${perType}</p>${mutRows}`;
+  // email
+  $("emailBox").textContent=emailText(m,y);
+}
+function emailText(m,y){
+  const s=state.settings, tot=sumBy(state.entries,{month:m,mouv:"Prise"});
+  const mut=sumBy(state.entries,{month:m,mouv:"Donnée"})+sumBy(state.entries,{month:m,mouv:"Reçue"});
+  let t=`Objet : Récapitulatif de mes heures de délégation – ${MONTHS[m-1]} ${s.year}\n\n`;
+  t+="Madame, Monsieur,\n\n";
+  t+=`Vous trouverez ci-joint le récapitulatif des heures de délégation que j'ai prises au titre du mois de ${MONTHS[m-1]} ${s.year}, soit ${fmtH(tot)} heures au total, réparties entre mes mandats (CSE, CSSCT, DS, RP).`;
+  if(mut>0)t+=`\n\nCe mois comporte des heures reportées et/ou mutualisées ; conformément aux articles R.2315-5 et R.2315-6 du Code du travail, je vous en informe.`;
+  t+="\n\nJe me tiens à votre disposition pour tout complément.\n\nCordialement,\n"+(s.name||"[Votre nom]");
+  return t;
+}
+$("copyEmail").onclick=async()=>{try{await navigator.clipboard.writeText($("emailBox").textContent);flash("Texte copié ✓");}catch(e){alert("Copie impossible, sélectionnez le texte manuellement.");}};
+$("printBtn").onclick=()=>{renderMois();setTimeout(()=>window.print(),50);};
+
+/* ===================== RÉGLAGES ===================== */
+function fillSettings(){
+  $("s-name").value=state.settings.name||"";$("s-year").value=state.settings.year;
+  TYPES.forEach(t=>$("q-"+t).value=state.settings.quotas[t]);
+  $("s-fb").value=localStorage.getItem("fbConfig")||"";
+}
+$("saveSettings").onclick=()=>{
+  state.settings.name=$("s-name").value.trim();
+  state.settings.year=+$("s-year").value||new Date().getFullYear();
+  TYPES.forEach(t=>state.settings.quotas[t]=+$("q-"+t).value||0);
+  persist();buildMonthSelectors();flash("Réglages enregistrés ✓");
+};
+$("exportData").onclick=()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download=`delegation-${state.settings.year}.json`;a.click();
+};
+$("importData").onchange=ev=>{
+  const f=ev.target.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{const s=JSON.parse(rd.result);if(s.settings&&s.entries){state=s;persist();fillSettings();buildMonthSelectors();renderEntries();flash("Sauvegarde importée ✓");}else alert("Fichier invalide.");}catch(e){alert("Fichier illisible.");}};
+  rd.readAsText(f);
+};
+
+/* ===================== FIREBASE (synchro par code, optionnel) ===================== */
+let fbApp=null,fbDb=null,fbAuth=null,fbUser=null,fbDoc=null,unsub=null,pushTimer=null,applying=false;
+$("saveFb").onclick=()=>{const v=$("s-fb").value.trim();if(v){localStorage.setItem("fbConfig",v);}else{localStorage.removeItem("fbConfig");}location.reload();};
+$("genCode").onclick=()=>{$("s-code").value="DEL-"+Math.random().toString(36).slice(2,8).toUpperCase();};
+$("saveCode").onclick=()=>{const c=$("s-code").value.trim();if(!c){alert("Entrez un code (le même sur vos deux appareils).");return;}localStorage.setItem("syncCode",c);attachDoc();flash("Code enregistré ✓");};
+function parseCfg(raw){
+  let s=raw.trim().replace(/^\s*(const|var|let)\s+\w+\s*=\s*/,"").replace(/;?\s*$/,"");
+  try{return JSON.parse(s);}catch(e){}
+  try{return Function('"use strict";return ('+s+')')();}catch(e){}
+  return null;
+}
+async function initFirebase(){
+  const raw=localStorage.getItem("fbConfig");if(!raw)return;
+  const cfg=parseCfg(raw);if(!cfg||!cfg.apiKey){setSync("⚠ Configuration Firebase illisible.");return;}
+  try{
+    const {initializeApp}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const {getAuth,signInAnonymously,onAuthStateChanged}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+    const {getFirestore,doc,onSnapshot,setDoc}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    fbApp=initializeApp(cfg);fbAuth=getAuth(fbApp);fbDb=getFirestore(fbApp);
+    window._fb={doc,onSnapshot,setDoc};
+    $("fbControls").classList.remove("hidden");
+    $("s-code").value=localStorage.getItem("syncCode")||"";
+    onAuthStateChanged(fbAuth,u=>{
+      fbUser=u;
+      if(u){ if(localStorage.getItem("syncCode")) attachDoc(); else setSync("Connecté — entrez un code de synchronisation ci-dessous."); }
+      else setSync("Connexion en cours…");
+    });
+    await signInAnonymously(fbAuth).catch(e=>setSync("⚠ Connexion refusée : "+e.message+"  (activez « Anonyme » dans Firebase Authentication)"));
+  }catch(e){setSync("⚠ Erreur Firebase : "+e.message);}
+}
+function attachDoc(){
+  if(!fbDb||!fbUser)return;
+  const code=localStorage.getItem("syncCode");if(!code)return;
+  if(unsub){unsub();unsub=null;}
+  fbDoc=window._fb.doc(fbDb,"delegation",code);
+  setSync("🔄 Synchronisé (code "+code+")");
+  unsub=window._fb.onSnapshot(fbDoc,snap=>{
+    if(snap.exists()&&snap.data().payload){
+      applying=true;try{state=JSON.parse(snap.data().payload);}catch(e){}
+      localStorage.setItem("delegation",JSON.stringify(state));
+      fillSettings();buildMonthSelectors();renderEntries();renderMois();applying=false;
+      setSync("🔄 Synchronisé (code "+code+")");
+    }else{cloudPush(true);}
+  },err=>setSync("⚠ Erreur synchro : "+err.message+"  (vérifiez la règle Firestore)"));
+}
+function cloudPush(force){
+  if(!fbDoc||!fbUser||applying)return;
+  clearTimeout(pushTimer);
+  pushTimer=setTimeout(()=>{window._fb.setDoc(fbDoc,{payload:JSON.stringify(state),updated:Date.now()})
+    .catch(e=>setSync("⚠ Envoi refusé : "+e.message+"  (vérifiez la règle Firestore)"));},force?0:800);
+}
+function setSync(t){$("fbState").textContent=t;$("syncState").textContent=t;}
+
+/* ===================== UTILITAIRES & INIT ===================== */
+function frDate(d){const D=new Date(d+"T00:00");return `${DOW[(D.getDay()+6)%7]} ${d.slice(8,10)}/${d.slice(5,7)}`;}
+function esc(s){return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+function flash(msg){const el=document.createElement("div");el.textContent=msg;
+  el.style.cssText="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1F3864;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;z-index:99;box-shadow:0 3px 10px rgba(0,0,0,.2)";
+  document.body.appendChild(el);setTimeout(()=>el.remove(),1400);}
+function buildMonthSelectors(){
+  const cur=new Date().getMonth()+1;
+  [["listMonth",renderEntries],["recapMonth",renderMois]].forEach(([id,fn])=>{
+    const sel=$(id);const keep=sel.value;sel.innerHTML=MONTHS.map((n,i)=>`<option value="${i+1}">${n} ${state.settings.year}</option>`).join("");
+    sel.value=keep|| cur;sel.onchange=fn;
+  });
+}
+$("f-date").value=new Date().toISOString().slice(0,10);
+fillSettings();buildMonthSelectors();toggleMouv();renderEntries();
+initFirebase();
+if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}
+</script>
+</body>
+</html>
